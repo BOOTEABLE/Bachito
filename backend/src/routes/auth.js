@@ -49,7 +49,12 @@ router.post('/login', async (req, res) => {
 
         res.json({ 
             token, 
-            user: { id: user._id, nombre: user.nombre, email: user.email } 
+            user: { 
+                id: user._id, 
+                nombre: user.nombre, 
+                email: user.email,
+                role: user.role // <--- ¡IMPORTANTE! Enviamos el rol
+            } 
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
