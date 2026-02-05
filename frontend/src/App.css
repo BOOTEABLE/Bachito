@@ -1,0 +1,527 @@
+/* --- ESTILOS DEL MENÚ INFERIOR --- */
+.bottom-nav {
+    position: fixed; /* Fija el menú a la pantalla */
+    bottom: 0;       /* Pegado abajo */
+    left: 0;
+    width: 100%;
+    height: 70px;    /* Altura del menú */
+    background: rgba(11, 14, 20, 0.95); /* Color oscuro casi negro */
+    backdrop-filter: blur(10px);        /* Efecto borroso bonito */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 9999; /* ¡IMPORTANTE! Esto lo pone encima del mapa */
+    padding-bottom: 10px;
+}
+
+.nav-item {
+    background: none;
+    border: none;
+    color: #64748b; /* Color gris apagado */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-item svg {
+    stroke-width: 2px;
+}
+
+/* Color azul cuando el botón está activo */
+.nav-item.active {
+    color: #3b82f6; 
+}
+/* =========================================
+   ESTILOS DE LA PÁGINA DE CONFIGURACIÓN
+   (Pega esto al final de src/App.css)
+   ========================================= */
+
+/* 1. EL CONTENEDOR PRINCIPAL */
+.config-page {
+    padding: 20px;
+    padding-bottom: 100px; /* Espacio para el menú de abajo */
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Colores en MODO OSCURO (Por defecto) */
+.config-page.dark {
+    background-color: #0b0e14; /* Fondo casi negro */
+    color: white;
+}
+
+/* Colores en MODO CLARO */
+.config-page.light {
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+
+/* 2. HEADER DEL PERFIL (La parte de arriba) */
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-top: 10px;
+}
+
+.avatar-circle {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6); /* Gradiente Azul-Morado */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    color: white;
+    font-weight: bold;
+    margin-right: 15px;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); /* Resplandor */
+}
+
+.profile-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profile-name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    font-size: 22px;
+    font-weight: 800;
+    color: inherit; 
+    width: 100%;
+    outline: none;
+    padding: 5px 0;
+    transition: 0.3s;
+}
+
+.profile-name-input:focus {
+    border-bottom: 1px solid #3b82f6; /* Línea azul al escribir */
+}
+
+.profile-level {
+    color: #3b82f6; /* Texto azul */
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 3. TARJETAS (Los bloques grises) */
+.settings-section {
+    background: rgba(30, 41, 59, 0.6); /* Gris oscuro translúcido */
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+}
+
+.config-page.light .settings-section {
+    background: white;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.settings-section h3 {
+    margin-top: 0;
+    font-size: 13px;
+    opacity: 0.5;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+/* 4. BOTONES DE VEHÍCULO */
+.vehicle-selector {
+    display: flex;
+    gap: 12px;
+}
+
+.vehicle-btn {
+    flex: 1;
+    padding: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    color: inherit;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+.config-page.light .vehicle-btn {
+    border-color: #e5e7eb;
+}
+
+/* Cuando seleccionas un botón */
+.vehicle-btn.selected {
+    background: #3b82f6; /* Fondo Azul */
+    color: white;
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); /* Sombra azul brillante */
+    transform: translateY(-2px);
+}
+
+/* 5. LISTA DE OPCIONES (Los renglones) */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-label {
+    display: flex;
+    flex-direction: column;
+}
+
+.setting-label span {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.setting-label small {
+    font-size: 13px;
+    opacity: 0.6;
+    margin-top: 4px;
+}
+
+/* 6. INTERRUPTORES (SWITCHES) - ¡IMPORTANTE! */
+/* Esto oculta el checkbox cuadrado feo */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 30px;
+}
+
+.switch input { 
+    opacity: 0; 
+    width: 0; 
+    height: 0; 
+}
+
+/* Esta es la barra del interruptor */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #4b5563; /* Gris apagado */
+    transition: .4s;
+    border-radius: 34px;
+}
+
+/* Esta es la bolita blanca que se mueve */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 24px;
+    width: 24px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Cuando lo activas se pone azul */
+input:checked + .slider {
+    background-color: #3b82f6; 
+}
+
+/* Mover la bolita a la derecha */
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* 7. TARJETA VERDE DE ESTADÍSTICAS */
+.stats-card {
+    background: linear-gradient(135deg, #10b981, #059669); /* Verde esmeralda */
+    border-radius: 18px;
+    padding: 25px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    color: white;
+    margin-top: 25px;
+    box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4); /* Resplandor verde */
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 11px;
+    opacity: 0.9;
+    text-transform: uppercase;
+    margin-top: 5px;
+    font-weight: 600;
+}
+
+.stat-line {
+    width: 1px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.app-version {
+    text-align: center;
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 40px;
+}
+/* =========================================
+   NUEVA TARJETA DE ALERTA "PRO"
+   (Pega esto al final de src/App.css)
+   ========================================= */
+
+/* Animación de entrada */
+@keyframes popUp {
+    from { opacity: 0; transform: translate(-50%, 20px) scale(0.95); }
+    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+.pothole-alert-card {
+    position: fixed;
+    bottom: 100px; /* Elevado sobre el menú */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 400px;
+    
+    /* ESTÉTICA DE CRISTAL (GLASSMORPHISM) */
+    background: rgba(20, 25, 40, 0.90); /* Fondo oscuro semi-transparente */
+    backdrop-filter: blur(15px);        /* Efecto borroso detrás */
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 77, 77, 0.3); /* Borde rojo sutil */
+    box-shadow: 
+        0 20px 40px rgba(0,0,0,0.6), /* Sombra profunda */
+        0 0 30px rgba(255, 77, 77, 0.2); /* Resplandor rojo exterior */
+        
+    border-radius: 24px;
+    padding: 24px;
+    z-index: 10001;
+    color: white;
+    animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* HEADER ROJO */
+.alert-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.live-pulse {
+    width: 12px; height: 12px;
+    background: #ff4d4d;
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(255, 77, 77, 0.7);
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+}
+
+.danger-title {
+    color: #ff4d4d;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.pothole-alert-card h2 {
+    margin: 0 0 20px 0;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+/* CONTENEDOR DE DATOS (Las cajas) */
+.alert-data-container {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+/* CAJAS INDIVIDUALES */
+.data-box {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.depth-box { border-bottom: 3px solid #ff4d4d; } /* Línea roja abajo */
+.distance-box { border-bottom: 3px solid #f97316; } /* Línea naranja abajo */
+
+.data-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #9ca3af;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+/* NÚMEROS GIGANTES */
+.data-value {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.data-value small {
+    font-size: 16px;
+    font-weight: 600;
+    color: #d1d5db;
+}
+
+.red-glow { color: #ff4d4d; text-shadow: 0 0 15px rgba(255, 77, 77, 0.5); }
+.orange-glow { color: #f97316; text-shadow: 0 0 15px rgba(249, 115, 22, 0.5); }
+
+/* --- BOTONES DE ACCIÓN --- */
+.card-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.card-actions button {
+    flex: 1;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 15px; /* Letra un pelín más chica para que quepa CONFIRMAR */
+    cursor: pointer;
+    transition: transform 0.1s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Botón OMITIR (Gris/Neutro) */
+.btn-omitir {
+    background: rgba(255, 255, 255, 0.1);
+    color: #9ca3af;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Botón CONFIRMAR (Verde/Azul Vibrante) */
+.btn-confirmar {
+    background: linear-gradient(135deg, #3b82f6, #2563eb); /* Azul Waze */
+    color: white;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); /* Resplandor azul */
+}
+
+/* Efecto al presionar */
+.btn-confirmar:active, .btn-omitir:active {
+    transform: scale(0.96);
+}
+/* --- PANTALLAS DE LOGIN / REGISTER --- */
+.auth-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0b0e14; /* Fondo Dark */
+    padding: 20px;
+}
+
+.auth-card {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.auth-card h2 { margin-bottom: 5px; color: #3b82f6; }
+.auth-card p { color: #9ca3af; margin-bottom: 30px; }
+
+.auth-card input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    box-sizing: border-box; /* Importante para que no se salga */
+}
+
+.auth-card input:focus {
+    border-color: #3b82f6;
+    outline: none;
+}
+
+.btn-auth {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-auth.secondary {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9); /* Morado para registro */
+}
+
+.auth-footer {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.auth-footer a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: bold;
+}
