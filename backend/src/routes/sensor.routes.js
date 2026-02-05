@@ -8,5 +8,5 @@ router.post('/', sensorController.receiveData);
 // Ruta para ver datos (GET) 
 // Verifica que el nombre después del punto sea IGUAL al del controlador
 router.get('/', sensorController.getAllData); 
-
+router.patch('/:id', sensorController.updateLocation);
 module.exports = router;

@@ -20,3 +20,20 @@ exports.getAllData = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener datos' });
     }
 };
+// Función para ACTUALIZAR coordenadas (PATCH)
+exports.updateLocation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { lat, lng } = req.body;
+        
+        const bacheActualizado = await SensorData.findByIdAndUpdate(
+            id, 
+            { lat, lng }, 
+            { new: true }
+        );
+        
+        res.status(200).json(bacheActualizado);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar ubicación' });
+    }
+};

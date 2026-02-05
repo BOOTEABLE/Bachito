@@ -5,10 +5,9 @@ const SensorDataSchema = new mongoose.Schema({
   movimiento: Boolean,
   distancia: Number,
   bache: Boolean,
-  timestamp: {
-    type: Date,
-    default: Date.now
-  }
+  lat: { type: Number, default: 0 }, // Agregar esto
+  lng: { type: Number, default: 0 }, // Agregar esto
+  timestamp: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('SensorData', SensorDataSchema);
