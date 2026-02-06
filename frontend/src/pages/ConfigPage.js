@@ -1,71 +1,82 @@
 // UBICACIÓN: src/pages/ConfigPage.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // <--- IMPORTANTE: Necesitamos axios para pedir los datos
+import axios from 'axios';
+import { API_URL } from '../config'; // Usamos la configuración centralizada
 import '../App.css'; 
 
 function ConfigPage({ darkMode, setDarkMode }) {
-    // Estados del usuario
+    // --- ESTADOS ---
     const [nombre, setNombre] = useState(localStorage.getItem('userName') || '');
     const [vehiculo, setVehiculo] = useState(localStorage.getItem('userVehicle') || 'auto');
     const [sonido, setSonido] = useState(true);
-
-    // ESTADOS PARA DATOS REALES DEL HARDWARE
+    const [esExplorador, setEsExplorador] = useState(false); // Nuevo estado para el rol
     const [stats, setStats] = useState({
         reportes: 0,
         km: 0
     });
 
-    // --- EFECTO: CARGAR DATOS REALES DEL SERVIDOR ---
+    // --- EFECTO 1: CARGAR ESTADÍSTICAS Y ROL AL INICIAR ---
     useEffect(() => {
+        // A. Cargar Rol
+        const rolActual = localStorage.getItem('rolUsuario');
+        setEsExplorador(rolActual === 'explorador');
+
+        // B. Cargar Estadísticas del Servidor
         const cargarEstadisticas = async () => {
             try {
-                // Obtenemos la IP guardada o usamos localhost
-                const ip = localStorage.getItem('serverIp') || 'localhost';
-                const url = `http://${ip}:4000/api/sensores`; // Asegúrate que el puerto sea el de tu backend (4000 o 3000)
-
-                const res = await axios.get(url);
+                // Usamos API_URL que viene de config.js (ya tiene la IP correcta)
+                const res = await axios.get(`${API_URL}/sensores`);
                 const datos = res.data;
 
-                // 1. CALCULAR REPORTES (Cuántos baches reales ha detectado el hardware)
+                // Calculamos datos
                 const totalBaches = datos.filter(dato => dato.bache === true).length;
-
-                // 2. CALCULAR KM (Estimación basada en la actividad del hardware)
-                // Asumimos que cada dato enviado (cada 2 seg) equivale a 0.02 km recorridos aprox.
-                // O puedes usar la cantidad de datos totales como "tiempo de uso"
                 const kmEstimados = (datos.length * 0.02).toFixed(1); 
 
                 setStats({
                     reportes: totalBaches,
                     km: kmEstimados
                 });
-
             } catch (error) {
                 console.error("Error cargando estadísticas:", error);
-                // Si falla, dejamos 0 o cargamos del localStorage si quisieras
             }
         };
 
         cargarEstadisticas();
     }, []);
 
-    // Guardar nombre
+    // --- FUNCIONES DE CAMBIO ---
+
+    // 1. Cambiar Rol (Explorador / Usuario)
+    const cambiarRol = () => {
+        if (esExplorador) {
+            localStorage.setItem('rolUsuario', 'usuario');
+            setEsExplorador(false);
+            alert("🔒 MODO USUARIO ACTIVADO\n\nAhora solo podrás VER los baches. Tu GPS no modificará la base de datos.");
+        } else {
+            localStorage.setItem('rolUsuario', 'explorador');
+            setEsExplorador(true);
+            alert("🕵️‍♂️ MODO EXPLORADOR ACTIVADO\n\n¡Cuidado! Ahora tu GPS se vinculará a los sensores nuevos. Úsalo solo en el vehículo de pruebas.");
+        }
+    };
+
+    // 2. Cambiar Nombre
     const handleNameChange = (e) => {
         setNombre(e.target.value);
         localStorage.setItem('userName', e.target.value);
     };
 
-    // Guardar vehículo
+    // 3. Cambiar Vehículo
     const handleVehicleChange = (val) => {
         setVehiculo(val);
         localStorage.setItem('userVehicle', val);
     };
 
     return (
-        <div className={`config-page ${darkMode ? 'dark' : 'light'}`}>
+        <div className={`config-page ${darkMode ? 'dark' : 'light'}`} style={{ paddingBottom: '80px' }}>
             
             {/* CABECERA DE PERFIL */}
             <div className="profile-header">
-                <div className="avatar-circle">
+                <div className={`avatar-circle ${esExplorador ? 'border-green' : ''}`}>
                     {nombre ? nombre.charAt(0).toUpperCase() : '👤'}
                 </div>
                 <div className="profile-info">
@@ -76,7 +87,63 @@ function ConfigPage({ darkMode, setDarkMode }) {
                         onChange={handleNameChange}
                         className="profile-name-input"
                     />
-                    <p className="profile-level">Explorador Nivel {stats.reportes > 5 ? '2' : '1'}</p>
+                    <p className="profile-level" style={{ color: esExplorador ? '#4ade80' : '#94a3b8' }}>
+                        {esExplorador ? '🛠️ Técnico Oficial' : '🚗 Conductor Ciudadano'}
+                    </p>
+                </div>
+            </div>
+
+            {/* --- NUEVA SECCIÓN: GESTIÓN DE ROLES --- */}
+            <div className="settings-section">
+                <h3>🪪 Identidad del Dispositivo</h3>
+                <div className="card-rol" style={{ 
+                    padding: '20px', 
+                    backgroundColor: 'rgba(30, 41, 59, 0.5)', 
+                    border: esExplorador ? '2px solid #22c55e' : '1px solid #475569',
+                    borderRadius: '15px',
+                    marginBottom: '20px',
+                    transition: 'all 0.3s ease'
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <h4 style={{ margin: 0, color: 'white' }}>
+                            {esExplorador ? 'MODO EXPLORADOR' : 'MODO USUARIO'}
+                        </h4>
+                        <span style={{ 
+                            padding: '4px 10px', 
+                            borderRadius: '20px', 
+                            fontSize: '11px',
+                            backgroundColor: esExplorador ? '#22c55e' : '#64748b',
+                            color: 'white',
+                            fontWeight: 'bold'
+                        }}>
+                            {esExplorador ? 'ACTIVO' : 'PASIVO'}
+                        </span>
+                    </div>
+
+                    <p style={{ fontSize: '13px', color: '#cbd5e1', marginBottom: '15px', lineHeight: '1.4' }}>
+                        {esExplorador 
+                            ? "✅ Tu GPS registrará automáticamente la ubicación de nuevos baches detectados."
+                            : "👁️ Tu dispositivo solo recibe alertas. No afecta la base de datos."
+                        }
+                    </p>
+                    
+                    <button 
+                        onClick={cambiarRol}
+                        style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            backgroundColor: esExplorador ? 'rgba(34, 197, 94, 0.2)' : '#3b82f6',
+                            color: esExplorador ? '#4ade80' : 'white',
+                            border: esExplorador ? '1px solid #22c55e' : 'none'
+                        }}
+                    >
+                        {esExplorador ? 'Desactivar Permisos' : 'Activar Modo Técnico'}
+                    </button>
                 </div>
             </div>
 
@@ -136,22 +203,20 @@ function ConfigPage({ darkMode, setDarkMode }) {
                 </div>
             </div>
 
-            {/* SECCIÓN 3: ESTADÍSTICAS REALES DEL HARDWARE */}
+            {/* SECCIÓN 3: ESTADÍSTICAS REALES */}
             <div className="stats-card">
                 <div className="stat-item">
-                    {/* AQUI MOSTRAMOS LOS DATOS REALES */}
                     <span className="stat-number">{stats.reportes}</span>
                     <span className="stat-label">Baches Reportados</span>
                 </div>
                 <div className="stat-line"></div>
                 <div className="stat-item">
-                    {/* AQUI MOSTRAMOS LOS KM ESTIMADOS */}
                     <span className="stat-number">{stats.km}km</span>
                     <span className="stat-label">Recorridos</span>
                 </div>
             </div>
 
-            <p className="app-version">Bachito v1.0 - Proyecto</p>
+            <p className="app-version">Oráculo Vial v1.0 - Proyecto Tesis</p>
         </div>
     );
 }

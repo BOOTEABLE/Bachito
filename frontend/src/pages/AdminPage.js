@@ -1,6 +1,7 @@
 // UBICACIÓN: src/pages/AdminPage.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 import '../App.css'; 
 
 function AdminPage() {
@@ -15,7 +16,7 @@ function AdminPage() {
     const cargarBaches = async () => {
         try {
             const ip = localStorage.getItem('serverIp') || 'localhost';
-            const res = await axios.get(`http://${ip}:4000/api/sensores`);
+            const res = await axios.get(`http://192.168.3.52:4000/api/sensores`);
             setBaches(res.data.reverse()); 
         } catch (err) {
             console.error(err);
@@ -29,23 +30,41 @@ function AdminPage() {
         if (umbralGuardado) setUmbral(parseInt(umbralGuardado));
     }, []);
 
-    // 2. Función para Borrar
+    // 2. Función para Borrar (CONECTADA AL SERVIDOR)
     const borrarBache = async (id) => {
         if (window.confirm("¿Eliminar reporte permanentemente?")) {
-            setBaches(baches.filter(b => b._id !== id));
+            try {
+                // 1. Avisamos al servidor
+                await axios.delete(`http://192.168.3.52:4000/api/sensores/${id}`);
+                
+                // 2. Si el servidor dice OK, actualizamos la pantalla
+                setBaches(baches.filter(b => b._id !== id));
+            } catch (error) {
+                console.error(error);
+                alert("Error: No se pudo eliminar de la base de datos.");
+            }
         }
     };
 
-    // 3. Función para "Reparar"
+    // 3. Función para "Reparar" (CONECTADA AL SERVIDOR)
     const marcarReparado = async (id) => {
-        const nuevosBaches = baches.map(b => {
-            if (b._id === id) {
-                return { ...b, estado: 'reparado' }; 
-            }
-            return b;
-        });
-        setBaches(nuevosBaches);
-        alert("✅ Bache marcado como reparado. ¡Buen trabajo!");
+        try {
+            // 1. Avisamos al servidor (Guardamos en BD)
+            await axios.patch(`http://192.168.3.52:4000/api/sensores/${id}`, { estado: 'reparado' });
+
+            // 2. Actualizamos la pantalla visualmente
+            const nuevosBaches = baches.map(b => {
+                if (b._id === id) {
+                    return { ...b, estado: 'reparado' }; 
+                }
+                return b;
+            });
+            setBaches(nuevosBaches);
+            alert("✅ Registro guardado: Vía reparada.");
+        } catch (error) {
+            console.error(error);
+            alert("Error al guardar el estado en la base de datos.");
+        }
     };
 
     // 4. FUNCIÓN DESCARGAR EXCEL
@@ -61,7 +80,7 @@ function AdminPage() {
 
         const headers = Object.keys(datosParaExcel[0]).join(","); 
         const filas = datosParaExcel.map(obj => Object.values(obj).join(",")).join("\n"); 
-        const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + filas;
+        const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers + "\n" + filas;
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");

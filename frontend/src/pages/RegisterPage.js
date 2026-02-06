@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import { API_URL } from '../config';
 import '../App.css';
 
 function RegisterPage() {
@@ -13,7 +14,7 @@ function RegisterPage() {
         e.preventDefault();
         try {
             const ip = localStorage.getItem('serverIp') || 'localhost';
-            await axios.post(`http://${ip}:4000/api/auth/register`, { nombre, email, password });
+            await axios.post(`http:// 192.168.3.52:4000/api/auth/register`, { nombre, email, password });
             
             alert("✅ ¡Cuenta creada! Ahora inicia sesión.");
             navigate('/login');
