@@ -13,12 +13,16 @@ function RegisterPage() {
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            const ip = localStorage.getItem('serverIp') || 'localhost';
-            await axios.post(`http:// 192.168.3.52:4000/api/auth/register`, { nombre, email, password });
-            
+            await axios.post(`${API_URL}/api/auth/register`, {
+                nombre,
+                email,
+                password
+            });
+
             alert("✅ ¡Cuenta creada! Ahora inicia sesión.");
             navigate('/login');
         } catch (err) {
+            console.error(err);
             alert("Error: " + (err.response?.data?.msg || "Error al registrar"));
         }
     };
@@ -29,19 +33,30 @@ function RegisterPage() {
                 <h2>Crear Cuenta</h2>
                 <p>Únete a la red de detección</p>
                 <form onSubmit={handleRegister}>
-                    <input 
-                        type="text" placeholder="Tu Nombre" 
-                        value={nombre} onChange={(e) => setNombre(e.target.value)} required 
+                    <input
+                        type="text"
+                        placeholder="Tu Nombre"
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
+                        required
                     />
-                    <input 
-                        type="email" placeholder="Correo Electrónico" 
-                        value={email} onChange={(e) => setEmail(e.target.value)} required 
+                    <input
+                        type="email"
+                        placeholder="Correo Electrónico"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
                     />
-                    <input 
-                        type="password" placeholder="Contraseña" 
-                        value={password} onChange={(e) => setPassword(e.target.value)} required 
+                    <input
+                        type="password"
+                        placeholder="Contraseña"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
                     />
-                    <button type="submit" className="btn-auth secondary">REGISTRARSE</button>
+                    <button type="submit" className="btn-auth secondary">
+                        REGISTRARSE
+                    </button>
                 </form>
                 <div className="auth-footer">
                     ¿Ya tienes cuenta? <Link to="/login">Inicia Sesión</Link>

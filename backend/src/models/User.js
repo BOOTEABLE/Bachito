@@ -4,8 +4,13 @@ const UserSchema = new mongoose.Schema({
     nombre: { type: String, required: true },
     email:  { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    // 👇 NUEVO CAMPO:
-    role: { type: String, default: 'user' }, // Puede ser 'user' o 'admin'
+
+    role: {
+        type: String,
+        enum: ['admin', 'usuario', 'explorador'], // ✅ ROLES VÁLIDOS
+        default: 'usuario'
+    },
+
     fecha: { type: Date, default: Date.now }
 });
 

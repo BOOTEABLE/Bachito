@@ -7,8 +7,19 @@ function Navigation() {
     const location = useLocation();
     
     // 👇 1. AQUÍ LEEMOS SI ES JEFE O NO (Antes del return)
-    const role = localStorage.getItem('userRole'); 
+    const role = localStorage.getItem('userRole');
 
+{role === 'admin' && (
+  <Link to="/admin" className="nav-item">
+    🛡️ Admin
+  </Link>
+)}
+
+{role === 'explorador' && (
+  <Link to="/config" className="nav-item">
+    🔍 Explorador
+  </Link>
+)}
     return (
         <nav className="bottom-nav">
             {/* Botón Mapa */}
