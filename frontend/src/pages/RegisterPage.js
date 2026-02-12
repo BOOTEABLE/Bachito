@@ -14,7 +14,7 @@ function RegisterPage() {
         e.preventDefault();
         try {
             const ip = localStorage.getItem('serverIp') || 'localhost';
-            await axios.post(`http:// 192.168.3.52:4000/api/auth/register`, { nombre, email, password });
+            await axios.post(`${API_URL}/auth/register`, { nombre, email, password });
             
             alert("✅ ¡Cuenta creada! Ahora inicia sesión.");
             navigate('/login');

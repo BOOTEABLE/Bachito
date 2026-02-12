@@ -14,7 +14,7 @@ function LoginPage() {
         try {
             // OJO: IP del Backend (4000)
             const ip = localStorage.getItem('serverIp') || 'localhost';
-            const res = await axios.post(`http:// 192.168.3.52:4000/api/auth/login`, { email, password });
+            const res = await axios.post(`${API_URL}/auth/login`, { email, password });
 
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('userName', res.data.user.nombre);
