@@ -490,6 +490,7 @@ input:checked + .slider:before {
     color: white;
     font-size: 16px;
     box-sizing: border-box; /* Importante para que no se salga */
+    margin-bottom: 15px;
 }
 
 .auth-card input:focus {
@@ -524,4 +525,30 @@ input:checked + .slider:before {
     color: #3b82f6;
     text-decoration: none;
     font-weight: bold;
+}
+.btn-logout {
+  width: 100%;
+  padding: 15px;
+  background-color: rgba(239, 68, 68, 0.1); /* Rojo suave */
+  color: #ef4444; /* Rojo vibrante */
+  border: 1px solid #ef4444;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: #ef4444;
+  color: white;
+}
+.error-text {
+    color: #ff4d4d;
+    font-size: 11px;
+    margin-top: -12px;
+    margin-bottom: 10px;
+    display: block;
+    text-align: left;
+    font-weight: 600;
 }

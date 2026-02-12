@@ -7,27 +7,69 @@ import MapaPage from './pages/MapaPage';
 import ConfigPage from './pages/ConfigPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import AdminPage from './pages/AdminPage'; // 👈 1. IMPORTAR LA NUEVA PÁGINA
+import AdminPage from './pages/AdminPage';
 import Navigation from './components/Navigation';
 import './App.css';
 
-// --- GUARDIA DE SEGURIDAD NORMAL (Usuarios) ---
+// --- GUARDIA DE SEGURIDAD ---
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   return token ? children : <Navigate to="/login" />;
 };
 
-// 👇 2. GUARDIA DE SEGURIDAD VIP (Administradores) ---
 const AdminRoute = ({ children }) => {
   const token = localStorage.getItem('token');
-  const role = localStorage.getItem('userRole'); // Leemos el rol
-  
-  // Si tiene token Y es admin, pasa. Si no, lo mandamos al mapa normal (/)
+  const role = localStorage.getItem('userRole'); 
   return (token && role === 'admin') ? children : <Navigate to="/" />;
 };
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
+
+  // 🛰️ ESTADOS GLOBALES DE UBICACIÓN (El motor de Oráculo)
+  const [globalUserPos, setGlobalUserPos] = useState([-0.1807, -78.4678]);
+  const [globalHeading, setGlobalHeading] = useState(0);
+  const [gpsError, setGpsError] = useState(false);
+
+  // 🔄 RASTREADOR EN VIVO (Nunca se detiene al cambiar de pestaña)
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setGpsError(true);
+      return;
+    }
+
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+          setGpsError(false);
+          const { latitude, longitude, heading } = pos.coords;
+          
+          // Calculamos si el movimiento es real (usando una pequeña diferencia)
+          const latDiff = Math.abs(globalUserPos[0] - latitude);
+          const lngDiff = Math.abs(globalUserPos[1] - longitude);
+
+          // Solo actualizamos si el cambio es mayor a un umbral mínimo (aprox 1-2 metros)
+          if (latDiff > 0.00001 || lngDiff > 0.00001) {
+              setGlobalUserPos([latitude, longitude]);
+          }
+          
+          if (heading !== null && !isNaN(heading)) {
+              setGlobalHeading(heading);
+          }
+      },
+      (err) => {
+        console.error("Error GPS Global:", err);
+        setGpsError(true);
+      },
+      { 
+        enableHighAccuracy: true, 
+        timeout: 10000, 
+        maximumAge: 0 // Garantiza que siempre sea la ubicación del SEGUNDO actual
+      }
+    );
+
+    // Limpieza al cerrar la app
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, []);
 
   // Efecto visual del Body
   useEffect(() => {
@@ -48,14 +90,19 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* --- RUTAS PRIVADAS --- */}
+          {/* --- RUTAS PRIVADAS CON GPS EN VIVO --- */}
           
-          {/* MAPA */}
+          {/* MAPA: Recibe la posición global como "props" */}
           <Route 
             path="/" 
             element={
               <PrivateRoute>
-                <MapaPage darkMode={darkMode} />
+                <MapaPage 
+                  darkMode={darkMode} 
+                  userPos={globalUserPos} 
+                  heading={globalHeading}
+                  gpsError={gpsError}
+                />
                 <Navigation />
               </PrivateRoute>
             } 
@@ -72,7 +119,7 @@ function App() {
             } 
           />
 
-          {/* 👇 3. AQUÍ AGREGAMOS LA RUTA PROTEGIDA DE ADMIN */}
+          {/* PANEL ADMIN */}
           <Route 
             path="/admin" 
             element={
@@ -82,7 +129,6 @@ function App() {
               </AdminRoute>
             } 
           />
-
         </Routes>
       </div>
     </Router>

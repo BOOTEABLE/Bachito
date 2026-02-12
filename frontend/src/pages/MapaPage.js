@@ -28,97 +28,83 @@ const createNavIcon = (heading) => {
   });
 };
 
+// 🎯 RECENTRO FLUIDO: Usa flyTo para que el mapa se deslice suavemente
 function RecenterMap({ coords }) {
     const map = useMap();
-    useEffect(() => { map.setView(coords); }, [coords, map]);
+    useEffect(() => { 
+        // Usamos panTo en lugar de flyTo para movimientos cortos
+        // Esto elimina el "rebote" o temblor
+        map.panTo(coords, {
+            animate: true,
+            duration: 0.5 // Duración mucho más corta
+        }); 
+    }, [coords, map]);
     return null;
 }
 
-function MapaPage({ darkMode }) {
+// ✅ RECIBIMOS userPos, heading y gpsError desde App.js
+function MapaPage({ darkMode, userPos, heading, gpsError }) {
     const [baches, setBaches] = useState([]);
-    const [userPos, setUserPos] = useState([-0.1807, -78.4678]); 
-    const [heading, setHeading] = useState(0); 
     const [bacheIgnorado, setBacheIgnorado] = useState(localStorage.getItem('bacheIgnorado') || null);
     const [bacheCercano, setBacheCercano] = useState(null);
     const [distanciaRestante, setDistanciaRestante] = useState(0);
-    
-    // NUEVO: Estado para manejar errores de GPS
-    const [gpsError, setGpsError] = useState(false);
 
-    // 1. GPS Y PROXIMIDAD
+    // 1. LÓGICA DE PROXIMIDAD (Se actualiza cada vez que recibimos nueva userPos de App.js)
     useEffect(() => {
-        if (!navigator.geolocation) {
-            setGpsError(true);
-            return;
-        }
+        const peligros = baches.filter(b => b.bache);
+        let bacheEncontrado = null;
+        let menorDistancia = 10000;
 
-        const watchId = navigator.geolocation.watchPosition(
-            (pos) => {
-                setGpsError(false); // GPS funcionando bien
-                const { latitude, longitude, heading: gpsHeading } = pos.coords;
-                setUserPos([latitude, longitude]);
-                if (gpsHeading !== null && !isNaN(gpsHeading)) setHeading(gpsHeading);
-
-                const peligros = baches.filter(b => b.bache);
-                let bacheEncontrado = null;
-                let menorDistancia = 10000;
-
-                peligros.forEach(bache => {
-                    if (bache.lat !== 0 && bache.lng !== 0) {
-                        const dist = getDistanciaMetros(latitude, longitude, bache.lat, bache.lng);
-                        if (dist < 30 && dist < menorDistancia) { 
-                            menorDistancia = dist;
-                            bacheEncontrado = bache;
-                        }
-                    }
-                });
-
-                if (bacheEncontrado) {
-                    setDistanciaRestante(Math.round(menorDistancia));
-                    setBacheCercano(bacheEncontrado);
-                } else {
-                    setBacheCercano(null);
+        peligros.forEach(bache => {
+            if (bache.lat !== 0 && bache.lng !== 0) {
+                const dist = getDistanciaMetros(userPos[0], userPos[1], bache.lat, bache.lng);
+                if (dist < 30 && dist < menorDistancia) { 
+                    menorDistancia = dist;
+                    bacheEncontrado = bache;
                 }
-            },
-            (err) => {
-                console.error("Error GPS:", err);
-                setGpsError(true); // El usuario denegó o el GPS está apagado
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-        return () => navigator.geolocation.clearWatch(watchId);
-    }, [baches]);
+            }
+        });
 
-    // 2. OBTENER DATOS
+        if (bacheEncontrado) {
+            setDistanciaRestante(Math.round(menorDistancia));
+            setBacheCercano(bacheEncontrado);
+        } else {
+            setBacheCercano(null);
+        }
+    }, [baches, userPos]);
+
+    // 2. OBTENER DATOS DEL BACKEND
     const obtenerDatos = async () => {
         try {
-            const rolUsuario = localStorage.getItem('rolUsuario') || 'usuario'; 
-            // Recuerda cambiar esta IP por la de tu backend en AWS pronto
             const res = await axios.get(`http://192.168.3.52:4000/api/sensores`);
             const datos = res.data.reverse(); 
             setBaches(datos);
-            const ultimoBache = datos[0]; 
             
+            const ultimoBache = datos[0]; 
+            const rolUsuario = localStorage.getItem('rolUsuario') || 'usuario';
+
+            // MODO EXPLORADOR: Si hay bache sin GPS, usamos la userPos que viene de App.js
             if (rolUsuario === 'explorador' && ultimoBache && ultimoBache.bache && ultimoBache.lat === 0) {
-                navigator.geolocation.getCurrentPosition(async (pos) => {
-                    const { latitude, longitude } = pos.coords;
-                    try {
-                        await axios.patch(`http://192.168.3.52:4000/api/sensores/${ultimoBache._id}`, {
-                            lat: latitude, lng: longitude
-                        });
-                        console.log("📍 Ubicación guardada!");
-                    } catch (err) { console.error(err); }
-                });
+                try {
+                    await axios.patch(`http://192.168.3.52:4000/api/sensores/${ultimoBache._id}`, {
+                        lat: userPos[0], lng: userPos[1]
+                    });
+                    console.log("📍 Ubicación asignada automáticamente al bache");
+                } catch (err) { console.error("Error guardando GPS del bache:", err); }
             }
-        } catch (err) { console.error(err); }
+        } catch (err) { console.error("Error obteniendo baches:", err); }
     };
 
+    // PEGA ESTE BLOQUE:
     useEffect(() => {
         obtenerDatos();
-        const interval = setInterval(obtenerDatos, 2000);
+        const interval = setInterval(obtenerDatos, 5000); // 5 seg es más estable
         return () => clearInterval(interval);
+        // Dejamos el arreglo vacío [] para que se ejecute una sola vez al cargar.
+        // Los baches se actualizarán por el reloj del setInterval, no por tu GPS.
     }, []);
 
+    // --- MANEJO DE ALERTAS ---
     const bacheActivo = bacheCercano;
     const umbralAdmin = parseInt(localStorage.getItem('umbralBache')) || 20;
     const mostrarAlerta = bacheActivo && (bacheActivo._id !== bacheIgnorado) && (bacheActivo.distancia >= umbralAdmin);
@@ -131,13 +117,12 @@ function MapaPage({ darkMode }) {
 
     return (
       <div className="app-container">
-        
-        {/* AVISO DE GPS DESACTIVADO */}
+        {/* Overlay de GPS si hay error global */}
         {gpsError && (
             <div className="gps-alert-overlay">
                 <div className="gps-alert-content">
                     📍 <h3>GPS Requerido</h3>
-                    <p>Por favor, permite el acceso a tu ubicación para rastrear baches en tiempo real.</p>
+                    <p>La aplicación necesita tu ubicación en vivo para funcionar.</p>
                     <button onClick={() => window.location.reload()}>Reintentar</button>
                 </div>
             </div>
@@ -145,13 +130,16 @@ function MapaPage({ darkMode }) {
 
         <MapContainer center={userPos} zoom={18} zoomControl={false} style={{ height: "100vh", width: "100%" }}>
           <TileLayer 
-            url={darkMode 
-                ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" 
-                : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            } 
+            url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}" 
+            attribution='&copy; Google Maps'
           />
+          
           <RecenterMap coords={userPos} />
+          
+          {/* Marcador de usuario con heading de App.js */}
           <Marker position={userPos} icon={createNavIcon(heading)} zIndexOffset={1000} />
+          
+          {/* Marcadores de baches */}
           {baches.filter(b => b.bache).map(b => (
               <Marker 
                 key={b._id} 
@@ -168,7 +156,7 @@ function MapaPage({ darkMode }) {
           ))}
         </MapContainer>
 
-        {/* ALERTA ROJA */}
+        {/* ALERTA DE PELIGRO */}
         {mostrarAlerta && (
           <div className="pothole-alert-card animate-pop">
               <span className="danger-title">🔴 PELIGRO ADELANTE</span>
