@@ -2,7 +2,7 @@
 
 // Opción 1: Si estás probando en tu CASA (Celular y PC en el mismo Wi-Fi)
 // Cambia los números por los que te salgan en 'ipconfig'
-export const API_URL = "http://3.133.81.192:4000/api"; 
+export const API_URL = "https://bachito.duckdns.org:4000/api"; 
 
 // Opción 2: Si ya subiste a AWS (Descomenta esta cuando ya esté en la nube)
 // export const API_URL = "http://54.123.45.67:4000/api";
