@@ -124,7 +124,7 @@ function App() {
             path="/admin" 
             element={
               <AdminRoute>
-                <AdminPage />
+                <AdminPage darkMode={darkMode} />
                 <Navigation />
               </AdminRoute>
             } 
