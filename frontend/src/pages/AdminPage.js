@@ -1,4 +1,3 @@
-// UBICACIÓN: src/pages/AdminPage.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../config';
@@ -13,12 +12,9 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-// ✅ Recibimos darkMode desde App.js
 function AdminPage({ darkMode }) {
     const [baches, setBaches] = useState([]);
-    const [filtro, setFiltro] = useState('todos');
     const [view, setView] = useState('stats'); 
-    const [busqueda, setBusqueda] = useState('');
 
     const cargarBaches = async () => {
         try {
@@ -29,7 +25,32 @@ function AdminPage({ darkMode }) {
 
     useEffect(() => { cargarBaches(); }, []);
 
-    // --- ACCIONES DE GESTIÓN ---
+    // --- 👇 FUNCIÓN PARA DESCARGAR CSV (EXCEL) ---
+    const descargarCSV = () => {
+        if (baches.length === 0) return alert("No hay datos para exportar");
+
+        // Cabeceras de las columnas
+        const headers = ["ID,Latitud,Longitud,Profundidad(cm),Estado,Fecha\n"];
+        
+        // Formatear cada bache
+        const filas = baches.map(b => (
+            `${b._id},${b.lat},${b.lng},${b.distancia},${b.estado},${new Date(b.createdAt).toLocaleString()}`
+        )).join("\n");
+
+        const contenido = headers + filas;
+        
+        // Crear el archivo y descargar
+        const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `reporte_bachito_${new Date().toLocaleDateString()}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const marcarReparado = async (id) => {
         try {
             await axios.patch(`${API_URL}/sensores/${id}`, { estado: 'reparado' });
@@ -46,7 +67,6 @@ function AdminPage({ darkMode }) {
         }
     };
 
-    // --- DATOS PARA GRÁFICOS ---
     const statsData = {
         pendientes: baches.filter(b => b.estado !== 'reparado').length,
         reparados: baches.filter(b => b.estado === 'reparado').length
@@ -93,14 +113,31 @@ function AdminPage({ darkMode }) {
                  backgroundColor: darkMode ? '#0b0e14' : '#f3f4f6' 
              }}>
             
-            {/* CABECERA */}
             <div style={{ textAlign: 'center', padding: '50px 20px 30px' }}>
                 <h1 style={{ fontSize: '30px', fontWeight: '800', color: darkMode ? '#f8fafc' : '#1e293b', marginBottom: '10px' }}>
                     🛡️ Centro de Mando Vial
                 </h1>
                 <p style={{ color: '#64748b', fontSize: '15px' }}>Auditoría y Gestión de Infraestructura Crítica</p>
                 
-                {/* SELECTOR DE VISTA */}
+                {/* BOTÓN DE EXCEL / CSV */}
+                <button 
+                    onClick={descargarCSV}
+                    style={{
+                        marginTop: '15px',
+                        padding: '10px 20px',
+                        background: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '10px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                    }}>
+                    📥 Descargar Excel (CSV)
+                </button>
+
+                <br />
+
                 <div style={{ 
                     display: 'inline-flex', 
                     background: darkMode ? '#1e293b' : '#e2e8f0', 
@@ -127,11 +164,8 @@ function AdminPage({ darkMode }) {
             </div>
 
             <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-                
                 {view === 'stats' ? (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '25px' }}>
-                        
-                        {/* GRÁFICO DE BARRAS */}
                         <div className="settings-section" style={{ height: '380px', borderRadius: '25px', padding: '25px', display: 'flex', flexDirection: 'column' }}>
                             <h3 style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '20px' }}>
                                 Distribución de Estados
@@ -141,7 +175,6 @@ function AdminPage({ darkMode }) {
                             </div>
                         </div>
 
-                        {/* TARJETA DE RESUMEN CORREGIDA */}
                         <div className="settings-section" style={{ borderRadius: '25px', padding: '25px', display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
                             <h3 style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '30px', textAlign: 'center' }}>
                                 Resumen Operativo
@@ -165,7 +198,6 @@ function AdminPage({ darkMode }) {
                         </div>
                     </div>
                 ) : (
-                    /* MAPA DE CALOR */
                     <div className="settings-section" style={{ height: '550px', borderRadius: '25px', padding: '15px', overflow: 'hidden' }}>
                         <h3 style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '15px', paddingLeft: '10px' }}>
                             Densidad Geográfica (Mapa de Calor)
@@ -188,11 +220,10 @@ function AdminPage({ darkMode }) {
                     </div>
                 )}
 
-                {/* HISTORIAL */}
                 <div className="settings-section" style={{ marginTop: '30px', borderRadius: '25px', padding: '30px' }}>
                     <h3 style={{ color: darkMode ? '#f8fafc' : '#1e293b', fontSize: '18px', marginBottom: '25px' }}>📋 Historial de Auditoría</h3>
                     <div className="baches-list" style={{ display: 'grid', gap: '15px' }}>
-                        {baches.slice(0, 5).map(bache => (
+                        {baches.slice(0, 10).map(bache => (
                             <div key={bache._id} style={{ 
                                 background: darkMode ? 'rgba(30, 41, 59, 0.4)' : '#ffffff', 
                                 padding: '20px', borderRadius: '18px', display: 'flex', 
@@ -213,7 +244,7 @@ function AdminPage({ darkMode }) {
                     </div>
                 </div>
             </div>
-            <p style={{ textAlign: 'center', color: '#475569', fontSize: '12px', marginTop: '50px' }}>Oráculo Vial v1.0 • Universidad Politécnica Salesiana</p>
+            <p style={{ textAlign: 'center', color: '#475569', fontSize: '12px', marginTop: '50px' }}>Bachito Vial v1.0 • Universidad Politécnica Salesiana</p>
         </div>
     );
 }
