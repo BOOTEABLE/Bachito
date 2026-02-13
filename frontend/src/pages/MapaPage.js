@@ -76,17 +76,17 @@ function MapaPage({ darkMode, userPos, heading, gpsError }) {
     // 2. OBTENER DATOS DEL BACKEND
     const obtenerDatos = async () => {
         try {
-            const res = await axios.get(`http://192.168.3.52:4000/api/sensores`);
+            const res = await axios.get(`http://bachito.duckdns.org:4000/api/sensores`);
             const datos = res.data.reverse(); 
             setBaches(datos);
             
             const ultimoBache = datos[0]; 
-            const rolUsuario = localStorage.getItem('rolUsuario') || 'usuario';
+            const rolUsuario = localStorage.getItem('userRole') || 'usuario';
 
             // MODO EXPLORADOR: Si hay bache sin GPS, usamos la userPos que viene de App.js
             if (rolUsuario === 'explorador' && ultimoBache && ultimoBache.bache && ultimoBache.lat === 0) {
                 try {
-                    await axios.patch(`http://192.168.3.52:4000/api/sensores/${ultimoBache._id}`, {
+                    await axios.patch(`http://bachito.duckdns.org:4000/api/sensores/${ultimoBache._id}`, {
                         lat: userPos[0], lng: userPos[1]
                     });
                     console.log("📍 Ubicación asignada automáticamente al bache");
