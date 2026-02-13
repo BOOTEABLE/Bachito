@@ -26,7 +26,7 @@ const AdminRoute = ({ children }) => {
 function App() {
   const [darkMode, setDarkMode] = useState(true);
 
-  // 🛰️ ESTADOS GLOBALES DE UBICACIÓN (El motor de Oráculo)
+  // 🛰️ ESTADOS GLOBALES DE UBICACIÓN (El motor de Bachito)
   const [globalUserPos, setGlobalUserPos] = useState([-0.1807, -78.4678]);
   const [globalHeading, setGlobalHeading] = useState(0);
   const [gpsError, setGpsError] = useState(false);

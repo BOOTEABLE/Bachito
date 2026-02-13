@@ -144,7 +144,7 @@ function ConfigPage({ darkMode, setDarkMode }) {
                 </button>
             </div>
 
-            <p className="app-version">Oráculo Vial v1.0 - Proyecto Tesis</p>
+            <p className="app-version">Bachito Vial v1.0 - Proyecto Tesis</p>
         </div>
     );
 }

@@ -39,7 +39,7 @@ function LoginPage() {
         <div className="auth-container">
             <div className="auth-card">
                 <h2>Iniciar Sesión</h2>
-                <p>Bienvenido al Oráculo</p>
+                <p>Bienvenido a Bachito</p>
                 <form onSubmit={handleLogin}>
                     <input 
                         type="email" placeholder="Correo Electrónico" 
