@@ -44,7 +44,7 @@ function MapaPage({ darkMode, userPos, heading, gpsError }) {
     // 1. OBTENER DATOS Y MODO EXPLORADOR
     const obtenerDatos = async () => {
         try {
-            const res = await axios.get(`http://bachito.duckdns.org:4000/api/sensores`);
+            const res = await axios.get(`https://bachito.duckdns.org/api/sensores`);
             const datos = res.data.reverse(); 
             setBaches(datos);
             
@@ -54,7 +54,7 @@ function MapaPage({ darkMode, userPos, heading, gpsError }) {
             // ASIGNACIÓN DE GPS AUTOMÁTICA
             if (rolUsuario === 'explorador' && ultimoBache && ultimoBache.bache && (ultimoBache.lat === 0 || !ultimoBache.lat)) {
                 try {
-                    await axios.patch(`http://bachito.duckdns.org:4000/api/sensores/${ultimoBache._id}`, {
+                    await axios.patch(`https://bachito.duckdns.org/api/sensores/${ultimoBache._id}`, {
                         lat: userPos[0], lng: userPos[1]
                     });
                     console.log("📍 GPS asignado al bache");
