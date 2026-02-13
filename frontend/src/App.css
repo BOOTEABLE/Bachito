@@ -1,40 +1,65 @@
 /* --- ESTILOS DEL MENÚ INFERIOR --- */
+/* CONTENEDOR DE NAVEGACIÓN INFERIOR */
 .bottom-nav {
-    position: fixed; /* Fija el menú a la pantalla */
-    bottom: 0;       /* Pegado abajo */
-    left: 0;
-    width: 100%;
-    height: 70px;    /* Altura del menú */
-    background: rgba(11, 14, 20, 0.95); /* Color oscuro casi negro */
-    backdrop-filter: blur(10px);        /* Efecto borroso bonito */
+    position: fixed;
+    bottom: 15px; /* Un poco separado del borde para que parezca "flotante" */
+    left: 5%;
+    width: 90%;
+    height: 65px;
+    background: rgba(15, 20, 30, 0.85); /* Fondo oscuro translúcido */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    z-index: 9999; /* ¡IMPORTANTE! Esto lo pone encima del mapa */
-    padding-bottom: 10px;
+    z-index: 10000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .nav-item {
-    background: none;
-    border: none;
-    color: #64748b; /* Color gris apagado */
+    text-decoration: none;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    cursor: pointer;
+    justify-content: center;
+    color: #94a3b8; /* Gris azulado apagado */
     transition: all 0.3s ease;
+    flex: 1;
+}
+
+.nav-icon-wrapper {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 4px;
+    transition: transform 0.3s ease;
 }
 
 .nav-item svg {
-    stroke-width: 2px;
+    width: 100%;
+    height: 100%;
 }
 
-/* Color azul cuando el botón está activo */
+.nav-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ESTADO ACTIVO */
 .nav-item.active {
-    color: #3b82f6; 
+    color: #3b82f6; /* Azul eléctrico de Bachito */
+}
+
+.nav-item.active .nav-icon-wrapper {
+    transform: translateY(-5px); /* Pequeño salto hacia arriba */
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+}
+
+.nav-item:active {
+    transform: scale(0.9);
 }
 /* =========================================
    ESTILOS DE LA PÁGINA DE CONFIGURACIÓN
@@ -551,4 +576,116 @@ input:checked + .slider:before {
     display: block;
     text-align: left;
     font-weight: 600;
+}
+/* --- CONTENEDOR DE AUTENTICACIÓN --- */
+.auth-container {
+    background: radial-gradient(circle at top, #1a1a2e 0%, #0a0a12 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    text-align: center;
+    color: white;
+}
+
+.auth-logo-main {
+    width: 70px;
+    filter: drop-shadow(0 0 10px #3b82f6);
+    margin-bottom: 10px;
+}
+
+.auth-header h2 {
+    color: #3b82f6;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.auth-header p {
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+/* --- GRUPOS DE INPUTS --- */
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    color: #3b82f6;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 14px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: 0.3s;
+}
+
+.auth-form input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+    outline: none;
+}
+
+/* --- ERRORES --- */
+.input-error {
+    border-color: #ef4444 !important;
+}
+
+.error-text {
+    color: #ef4444;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 5px;
+    display: block;
+}
+
+/* --- BOTÓN --- */
+.btn-primary-auth {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btn-primary-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+}
+
+.auth-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: bold;
 }
